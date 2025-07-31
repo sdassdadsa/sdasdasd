@@ -171,7 +171,7 @@ export function VotingInterface({ voter, onLogout }: VotingInterfaceProps) {
       const { data: existingVote, error: checkError } = await supabase
         .from('voters')
         .select('voted_for')
-        .eq('user_id', voter.id)
+        .eq('id', voter.id)
         .single()
 
       if (checkError) {
@@ -224,7 +224,7 @@ export function VotingInterface({ voter, onLogout }: VotingInterfaceProps) {
         const { data: voterData } = await supabase
           .from('voters')
           .select('voted_for')
-          .eq('user_id', voter.id)
+          .eq('id', voter.id)
           .single()
         
         if (voterData?.voted_for) {
