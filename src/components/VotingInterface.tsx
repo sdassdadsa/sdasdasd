@@ -246,7 +246,7 @@ export function VotingInterface({ voter, onLogout }: VotingInterfaceProps) {
         <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
           <div>
             <h1 className="text-2xl font-bold text-gray-800">
-              Pemilihan Ketua Paguyuban
+              Pemilihan Ketua Paguyuban -Cluster Kalita
             </h1>
             <p className="text-gray-600">
               Selamat datang, <span className="font-semibold">{voter.name}</span>
