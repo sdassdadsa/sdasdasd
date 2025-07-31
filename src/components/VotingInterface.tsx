@@ -13,16 +13,12 @@ interface VoteCount {
 }
 
 const CANDIDATES = [
-  'Erich', 'Doni', 'M.Ilham', 'Ragil', 'Sutrisno', 'Bayu', 'Bambang', 'Azlika', 
-  'Indra', 'Robert', 'Heri', 'Zerinof', 'Siska', 'Vina', 'Fadly', 'Taofik', 
-  'Zakaria', 'Irfan', 'Rois', 'Farhan', 'Ozan', 'Joko', 'Awal', 'Sudariyanto', 
-  'Afriki', 'Arif H', 'Pringgo', 'Devi', 'Ferry', 'Reynal', 'Hermawan', 'Jerry', 
-  'Rizal', 'Wanda', 'Abdul', 'Rama', 'Bilal', 'Ricky', 'Denny', 'Bowo', 'Toha', 
-  'Daniel 1', 'Daniel 2', 'Ratih', 'Hermanto', 'Akmal', 'Acep', 'Andika', 'Arif', 
-  'Ocan', 'Ajip', 'Tunggul', 'Alberto', 'Fitria', 'Edi', 'Rina', 'Fikri', 
-  'Muchlis', 'Rizal Amin', 'Anjar', 'Iwan', 'Yoga', 'Sri', 'Gendras', 'Vinie', 
-  'Handoko', 'Ariyanto', 'Bu Rizka', 'Tomi', 'Samuel', 'Feodella', 'Asmariah', 
-  'Arnold', 'Fandy', 'Ilham Dwi', 'Efendi', 'Syafiyyah', 'Benedecta'
+  'Erich Y', 'Doni', 'M.Ilham', 'Ragil', 'Sutrisno', 'Bayu', 'Bambang', 'Azlika', 
+  'Indra', 'Robert P', 'Hery S', 'Zerinof', 'Siska', 'Vina', 'Fadly', 'Taofik D', 
+  'Benedecta', 'Lian Bin Ayong', 'Rois', 'Ozan', 'Joko', 'Awal', 'Sudariyanto', 
+  'Rohyana', 'Pringgo', 'Devi', 'M Furqon', 'Reynal', 'Rizal', 'Wanda', 'Abdul', 'Rama', 'Efendi', 'Ricky', 'Denny', 'Nova', 'Darmo', 'Ratih', 'Hermanto', 'Akmal', 'Acep', 'Andika', 'Haposan Mulia', 'Tunggul', 'Alberto', 'Fitria', 'Edi', 'Rina', 'Fikri', 
+  'Muchlis', 'Rizal Amin', 'Yunitri', 'Iwan', 'Alfian', 'Fatan F', 
+  'Handoko', 'Bu Rizka', 'Tomi', 'Samuel', 'Feodella', 'Dhimas', 'Fandy', 'Syafiyyah'
 ]
 
 export function VotingInterface({ voter, onLogout }: VotingInterfaceProps) {
