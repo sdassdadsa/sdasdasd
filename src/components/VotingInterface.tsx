@@ -49,21 +49,47 @@ export function VotingInterface({ voter, onLogout }: VotingInterfaceProps) {
     if (!isSupabaseConfigured) return
     
     try {
-      const { data, error } = await supabase
-        .from('votes')
-        .select('*')
-        .eq('user_id', voter.id)
-        .maybeSingle()
+      // Check from voters table first (more reliable)
+      const { data: voterData, error: voterError } = await supabase
+        .from('voters')
+        .select('voted_for')
+        .eq('id', voter.id)
+        .single()
 
-      if (error && error.code !== 'PGRST116') {
-        console.error('Error checking vote status:', error)
+      if (voterError) {
+        console.error('Error checking voter status:', voterError)
         return
       }
 
-      if (data) {
+      if (voterData?.voted_for) {
         setHasVoted(true)
-        setSelectedCandidate(data.candidate_name)
-        setMyVote(data.candidate_name)
+        setSelectedCandidate(voterData.voted_for)
+        setMyVote(voterData.voted_for)
+        return
+      }
+
+      // Also check votes table as backup
+      const { data: voteData, error: voteError } = await supabase
+        .from('votes')
+        .select('candidate_name')
+        .eq('user_id', voter.id)
+        .maybeSingle()
+
+      if (voteError && voteError.code !== 'PGRST116') {
+        console.error('Error checking vote status:', voteError)
+        return
+      }
+
+      if (voteData) {
+        setHasVoted(true)
+        setSelectedCandidate(voteData.candidate_name)
+        setMyVote(voteData.candidate_name)
+        
+        // Sync voters table if it's out of sync
+        await supabase
+          .from('voters')
+          .update({ voted_for: voteData.candidate_name })
+          .eq('id', voter.id)
       }
     } catch (error) {
       console.error('Error checking vote status:', error)
@@ -85,7 +111,7 @@ export function VotingInterface({ voter, onLogout }: VotingInterfaceProps) {
     try {
       const { data, error } = await supabase
         .from('votes')
-        .select('candidate_name')
+        .select('candidate_name, user_id')
 
       if (error) throw error
 
@@ -111,18 +137,23 @@ export function VotingInterface({ voter, onLogout }: VotingInterfaceProps) {
   const subscribeToVotes = () => {
     if (!isSupabaseConfigured) return () => {}
     
-    const channel = supabase
-      .channel('votes-changes')
-      .on('postgres_changes', 
-        { event: '*', schema: 'public', table: 'votes' },
-        () => {
-          fetchVoteCounts()
-        }
-      )
-      .subscribe()
+    try {
+      const channel = supabase
+        .channel('votes-changes')
+        .on('postgres_changes', 
+          { event: '*', schema: 'public', table: 'votes' },
+          () => {
+            fetchVoteCounts()
+          }
+        )
+        .subscribe()
 
-    return () => {
-      supabase.removeChannel(channel)
+      return () => {
+        supabase.removeChannel(channel)
+      }
+    } catch (error) {
+      console.error('Error setting up real-time subscription:', error)
+      return () => {}
     }
   }
 
@@ -137,20 +168,21 @@ export function VotingInterface({ voter, onLogout }: VotingInterfaceProps) {
     setIsVoting(true)
     try {
       // Cek sekali lagi apakah user sudah vote (untuk mencegah double voting)
-      const { data: existingVote } = await supabase
-        .from('votes')
-        .select('*')
+      const { data: existingVote, error: checkError } = await supabase
+        .from('voters')
+        .select('voted_for')
         .eq('user_id', voter.id)
-        .maybeSingle()
+        .single()
 
-      if (existingVote) {
+      if (checkError) {
+        console.error('Error checking existing vote:', checkError)
+        throw new Error('Gagal memeriksa status voting')
+      }
+
+      if (existingVote?.voted_for) {
         setHasVoted(true)
-        setSelectedCandidate(existingVote.candidate_name)
-        // Update voter record with their choice
-        await supabase
-          .from('voters')
-          .update({ voted_for: existingVote.candidate_name })
-          .eq('id', voter.id)
+        setSelectedCandidate(existingVote.voted_for)
+        setMyVote(existingVote.voted_for)
         alert('Anda sudah memberikan suara sebelumnya.')
         return
       }
@@ -189,14 +221,15 @@ export function VotingInterface({ voter, onLogout }: VotingInterfaceProps) {
         alert('Anda sudah memberikan suara sebelumnya.')
         await checkIfVoted()
         // Refresh untuk mendapatkan pilihan yang sudah ada
-        const { data: existingVote } = await supabase
-          .from('votes')
-          .select('candidate_name')
+        const { data: voterData } = await supabase
+          .from('voters')
+          .select('voted_for')
           .eq('user_id', voter.id)
-          .maybeSingle()
+          .single()
         
-        if (existingVote) {
-          setMyVote(existingVote.candidate_name)
+        if (voterData?.voted_for) {
+          setMyVote(voterData.voted_for)
+          setSelectedCandidate(voterData.voted_for)
         }
       } else {
         alert('Terjadi kesalahan saat memberikan suara. Silakan coba lagi.')

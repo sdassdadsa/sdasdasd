@@ -25,7 +25,8 @@ export const testSupabaseConnection = async () => {
   }
 
   try {
-    const { data, error } = await supabase.from('voters').select('count').limit(1)
+    // Test dengan query sederhana yang tidak memerlukan data
+    const { error } = await supabase.from('voters').select('id').limit(1)
     if (error) {
       console.error('Supabase connection test failed:', error)
       return false

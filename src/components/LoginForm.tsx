@@ -65,8 +65,12 @@ export function LoginForm({ onLogin }: LoginFormProps) {
         voted_for: voterData.voted_for
       })
     } catch (error) {
-      console.error('Error creating voter:', error)
-      setError('Terjadi kesalahan saat login. Silakan coba lagi.')
+      console.error('Error during login:', error)
+      if (error.code === '23505') {
+        setError('Data dengan nama dan alamat yang sama sudah terdaftar.')
+      } else {
+        setError('Terjadi kesalahan saat login. Silakan coba lagi.')
+      }
     } finally {
       setIsLoading(false)
     }
